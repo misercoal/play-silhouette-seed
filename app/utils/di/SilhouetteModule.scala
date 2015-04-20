@@ -88,7 +88,7 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
     clefProvider: ClefProvider,
     twitterProvider: TwitterProvider,
     xingProvider: XingProvider,
-    yahooProvider: YahooProvider): SocialProviderRegistry = {
+    yahooProvider: YahooProvider, weiboProvider: WeiboProvider, githubProvicer: GitHubProvider): SocialProviderRegistry = {
 
     SocialProviderRegistry(Seq(
       googleProvider,
@@ -97,7 +97,9 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
       vkProvider,
       xingProvider,
       yahooProvider,
-      clefProvider
+      clefProvider,
+      weiboProvider,
+    githubProvicer
     ))
   }
 
@@ -215,6 +217,25 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
       scope = Play.configuration.getString("silhouette.facebook.scope")))
   }
 
+
+  /**
+   * Provides the Weibo provider.
+   *
+   * @param httpLayer The HTTP layer implementation.
+   * @param stateProvider The OAuth2 state provider implementation.
+   * @return The Weibo provider.
+   */
+  @Provides
+  def provideWeiboProvider(httpLayer: HTTPLayer, stateProvider: OAuth2StateProvider): WeiboProvider = {
+    WeiboProvider(httpLayer, stateProvider, OAuth2Settings(
+      authorizationURL = Play.configuration.getString("silhouette.weibo.authorizationURL"),
+      accessTokenURL = Play.configuration.getString("silhouette.weibo.accessTokenURL").get,
+      redirectURL = Play.configuration.getString("silhouette.weibo.redirectURL").get,
+      clientID = Play.configuration.getString("silhouette.weibo.clientID").getOrElse(""),
+      clientSecret = Play.configuration.getString("silhouette.weibo.clientSecret").getOrElse(""),
+      scope = Play.configuration.getString("silhouette.weibo.scope")))
+  }
+
   /**
    * Provides the Google provider.
    *
@@ -324,5 +345,23 @@ class SilhouetteModule extends AbstractModule with ScalaModule {
       realm = Play.configuration.getString("silhouette.yahoo.realm"))
 
     YahooProvider(httpLayer, new PlayOpenIDService(settings), settings)
+  }
+
+  /**
+   * Provides the GitHub provider.
+   *
+   * @param httpLayer The HTTP layer implementation.
+   * @param stateProvider The OAuth2 state provider implementation.
+   * @return The GitHub provider.
+   */
+  @Provides
+  def provideGitHubProvider(httpLayer: HTTPLayer, stateProvider: OAuth2StateProvider): GitHubProvider = {
+    GitHubProvider(httpLayer, stateProvider, OAuth2Settings(
+      authorizationURL = Play.configuration.getString("silhouette.github.authorizationURL"),
+      accessTokenURL = Play.configuration.getString("silhouette.github.accessTokenURL").get,
+      redirectURL = Play.configuration.getString("silhouette.github.redirectURL").get,
+      clientID = Play.configuration.getString("silhouette.github.clientID").getOrElse(""),
+      clientSecret = Play.configuration.getString("silhouette.github.clientSecret").getOrElse(""),
+      scope = Play.configuration.getString("silhouette.github.scope")))
   }
 }

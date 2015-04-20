@@ -12,8 +12,10 @@ resolvers := ("Atlassian Releases" at "https://maven.atlassian.com/public/") +: 
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
+resolvers += Resolver.file("Local repo", file(System.getProperty("user.home") + "/.ivy2/local"))(Resolver.ivyStylePatterns)
+
 libraryDependencies ++= Seq(
-  "com.mohiva" %% "play-silhouette" % "2.1-SNAPSHOT",
+  "com.mohiva" %% "play-silhouette" % "2.2-SNAPSHOT",
   "org.webjars" %% "webjars-play" % "2.3.0",
   "org.webjars" % "bootstrap" % "3.1.1",
   "org.webjars" % "jquery" % "1.11.0",

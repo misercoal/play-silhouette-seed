@@ -39,9 +39,16 @@ class SocialAuthController @Inject() (
   def authenticate(provider: String) = Action.async { implicit request =>
     (socialProviderRegistry.get(provider) match {
       case Some(p: SocialProvider with CommonSocialProfileBuilder) =>
+        println(request.cookies.toString())
         p.authenticate().flatMap {
-          case Left(result) => Future.successful(result)
-          case Right(authInfo) => for {
+          case Left(result) =>
+            println("success")
+            println(result.toString())
+            Future.successful(result)
+          case Right(authInfo) =>
+            println("xxxxxxxxxxxxx")
+            println(authInfo.toString)
+            for {
             profile <- p.retrieveProfile(authInfo)
             user <- userService.save(profile)
             authInfo <- authInfoService.save(profile.loginInfo, authInfo)
@@ -50,7 +57,10 @@ class SocialAuthController @Inject() (
             result <- env.authenticatorService.embed(value, Redirect(routes.ApplicationController.index()))
           } yield {
             env.eventBus.publish(LoginEvent(user, request, request2lang))
-            result
+              println("ooxx")
+              println(authInfo.toString)
+
+              result
           }
         }
       case _ => Future.failed(new ProviderException(s"Cannot authenticate with unexpected social provider $provider"))
